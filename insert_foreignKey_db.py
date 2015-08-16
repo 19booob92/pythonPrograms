@@ -21,7 +21,9 @@ with open("example_insert.sql") as file:
 		mergedColumn = ",".join(cols)
 		out.append(mergedColumn)
 
-	print("),".join(out))
-					
-			
-						 	
+	with open("output.sql", "w")	as outputFile:
+		outputFile.write("),".join(out))
+		
+	outputFile.close()
+
+file.close()						 	
