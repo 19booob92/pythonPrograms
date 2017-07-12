@@ -75,9 +75,10 @@ class TestLogProcessor(unittest.TestCase):
 
         self.assertIsNone(time)
 
+    def test_should_return_true_when_line_contains_INFO_and_caused_by_is_not_empty(self):
+        result = utils.isInfoLineAfterStackTraceLine('2016-01-18 14:40:26,911 INFO  [CustomMappingsLoade', '\t')
 
-
-
+        self.assertTrue(result)
 
 
 

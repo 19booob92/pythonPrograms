@@ -52,3 +52,6 @@ def extractTime(stringDate):
     splittedDate = stringDate.split(':')
     time = datetime.time(int(splittedDate[0]), int(splittedDate[1]), int(splittedDate[2]))
     return time
+
+def isInfoLineAfterStackTraceLine(line, prevLine):
+    return isRegularStackTraceLine(prevLine) and 'INFO' in line

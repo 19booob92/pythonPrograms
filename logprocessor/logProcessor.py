@@ -7,6 +7,12 @@ from utils import findDate
 from utils import isEmptyLine
 from utils import isRegularStackTraceLine
 from utils import parseDate
+from utils import isInfoLineAfterStackTraceLine
+from colorama import init
+from colorama import Fore, Back, Style
+
+# init colors
+init()
 
 #handle help
 if len(sys.argv) > 1 and sys.argv[1] == 'h':
@@ -30,15 +36,16 @@ errors = []
 log = open(pathToFile)
 
 error = ''
-prevLine = ''
+rootError = ''
 causedBy = ''
 date = ''
+prevLine = ''
 for line in log:
-    if isEmptyLine(line) or ('ERROR' in prevLine and 'ERROR' not in line):
-        errDesc = ErrorDescription(causedBy, prevLine, date, error);
+    if isEmptyLine(line) or ('ERROR' in rootError and 'ERROR' not in line) or isInfoLineAfterStackTraceLine(line, prevLine):
+        errDesc = ErrorDescription(causedBy, rootError, date, error);
         errors.append(errDesc)
         error = ''
-        prevLine = ''
+        rootError = ''
         causedBy = ''
 
     if isRegularStackTraceLine(line):
@@ -50,14 +57,16 @@ for line in log:
         causedBy += line
         causedBy = causedBy.replace('Caused by', '')
     elif 'Caused by' not in line and '...' not in line:
-        if 'ERROR' in prevLine and 'ERROR' in line:
-            prevLine += line
+        if 'ERROR' in rootError and 'ERROR' in line:
+            rootError += line
         else:
-            prevLine = line
+            rootError = line
 
 
     if findDate(line) != None:
         date = findDate(line)
+
+    prevLine = line
 
 if dateToFind is not None:
     delta = datetime.timedelta(minutes = margin)
@@ -66,14 +75,18 @@ if dateToFind is not None:
     timeFrom = (tmpTime - delta).time()
     timeTo = (tmpTime + delta).time()
 
+def printColored(text, data):
+    if (data is not None and len(data) > 0):
+        print(text + Style.RESET_ALL, data)
+
 for stacktrace in errors:
     timeFromError = parseDate(stacktrace.date)
     if dateToFind is None or (timeFromError <= timeTo and timeFromError >= timeFrom):
-       print('CAUSE : \n', stacktrace.cause)
-       print('DATE : \n', stacktrace.date)
-       print('ERROR : \n', stacktrace.error)
-       print('SERVICE :\n' , stacktrace.root)
-       print('PRIORITY: \n ', stacktrace.priority)
+       printColored(Fore.RED + 'CAUSE : \n', stacktrace.cause)
+       printColored(Fore.BLUE + 'DATE : \n', stacktrace.date)
+       printColored(Fore.RED + 'ERROR : \n', stacktrace.error)
+       printColored(Fore.RED + 'SERVICE :\n' , stacktrace.root)
+       printColored(Fore.BLUE + 'PRIORITY: \n ', stacktrace.priority)
        print()
        print('*****************************************')
 
