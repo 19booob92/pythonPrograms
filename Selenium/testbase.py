@@ -3,6 +3,7 @@ from time import  sleep
 from properties import LOGIN
 from properties import MAIN_PAGE
 from properties import PASS
+from properties import LOGOUT
 
 def open_main_page():
     webDriver = webdriver.Chrome('./chromedriver')
@@ -19,3 +20,6 @@ def login(webDriver, login=LOGIN, password=PASS):
 
     login_btn = webDriver.find_element_by_class_name('login_btn')
     login_btn.click()
+
+def logout(webDriver):
+    webDriver.get(LOGOUT)
